@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Oncestream — Entretenimiento que te mueve</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Righteous&family=Poppins:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'once-blue': '#5B7FE8',
+            'once-lime': '#C5D535',
+            'once-dark': '#050814',
+            'once-navy': '#0D1526',
+          },
+          fontFamily: {
+            display: ['Righteous', 'cursive'],
+            body: ['Poppins', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Poppins', sans-serif; background: #F0F4FF; }
+
+    /* Navbar */
+    #navbar { transition: background 0.35s ease, backdrop-filter 0.35s ease; }
+    #navbar.scrolled { background: rgba(5,8,20,0.96); backdrop-filter: blur(14px); }
+
+    .nav-link {
+      position: relative;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.75);
+      transition: color 0.2s;
+    }
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: -5px; left: 0;
+      width: 0; height: 2px;
+      background: #C5D535;
+      transition: width 0.3s ease;
+    }
+    .nav-link:hover { color: #fff; }
+    .nav-link:hover::after, .nav-link.active::after { width: 100%; }
+    .nav-link.active { color: #C5D535; }
+
+    /* Hero */
+    .hero-video {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+    }
+
+    /* Show cards */
+    .show-card {
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      aspect-ratio: 4 / 3;
+    }
+    .show-card-bg {
+      position: absolute; inset: 0;
+      transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    .show-card:hover .show-card-bg { transform: scale(1.06); }
+
+    .show-card-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(5,8,20,0.88) 0%, rgba(5,8,20,0.25) 55%, transparent 100%);
+      transition: background 0.35s ease;
+    }
+    .show-card:hover .show-card-overlay {
+      background: linear-gradient(to top, rgba(5,8,20,0.95) 0%, rgba(5,8,20,0.4) 60%, rgba(5,8,20,0.05) 100%);
+    }
+
+    .show-card-content {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 1.25rem 1.5rem;
+      transform: translateY(6px);
+      transition: transform 0.3s ease;
+    }
+    .show-card:hover .show-card-content { transform: translateY(0); }
+
+    /* Schedule cell */
+    .sched-cell {
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      text-align: center;
+      padding: 10px 6px;
+      border-radius: 4px;
+      transition: opacity 0.2s;
+    }
+
+    /* Social card */
+    .social-card {
+      transition: transform 0.3s ease, border-color 0.3s ease;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .social-card:hover { transform: translateY(-5px); }
+
+    /* Scroll reveal */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.65s ease, transform 0.65s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* Scroll indicator */
+    @keyframes bounce-y {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(6px); }
+    }
+    .bounce { animation: bounce-y 1.6s ease-in-out infinite; }
+
+    /* Grid separator */
+    .shows-grid { gap: 2px; background: #D4DEFF; }
+  </style>
+</head>
+<body class="text-white">
+
+  <!-- ╔══════════════════════════════╗ -->
+  <!-- ║          NAVBAR              ║ -->
+  <!-- ╚══════════════════════════════╝ -->
+  <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 px-6 md:px-10 lg:px-16 py-5">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+
+      <!-- Logo -->
+      <a href="#inicio" class="flex items-center gap-3 cursor-pointer">
+        <div class="relative w-9 h-9 rounded-md overflow-hidden flex items-center justify-center" style="background:#5B7FE8;">
+          <span class="font-display text-[#C5D535] text-[10px] leading-[1.1] text-center font-bold select-none">ON<br>CE</span>
+          <div class="absolute inset-0 rounded-md" style="box-shadow:inset 0 0 0 2px rgba(197,213,53,0.35);"></div>
+        </div>
+        <span class="font-display text-white text-base tracking-widest hidden sm:block">ONCESTREAM</span>
+      </a>
+
+      <!-- Desktop nav -->
+      <div class="hidden md:flex items-center gap-10">
+        <a href="#inicio"    class="nav-link active">Inicio</a>
+        <a href="#programas" class="nav-link">Programas</a>
+        <a href="#horario"   class="nav-link">Horario</a>
+        <a href="#contacto"  class="nav-link">Contacto</a>
+      </div>
+
+      <!-- YouTube CTA -->
+      <a href="https://www.youtube.com/@oncestream" target="_blank"
+         class="hidden md:flex items-center gap-2 border border-white/20 hover:border-[#C5D535] hover:text-[#C5D535] text-white text-xs font-semibold tracking-widest uppercase px-4 py-2 transition-colors cursor-pointer">
+        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+        </svg>
+        Suscribirse
+      </a>
+
+      <!-- Mobile hamburger -->
+      <button id="menu-btn" class="md:hidden text-white focus:outline-none cursor-pointer" aria-label="Menu">
+        <svg id="icon-open" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+        <svg id="icon-close" class="w-6 h-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Mobile menu -->
+    <div id="mobile-menu" class="hidden md:hidden absolute top-full left-0 right-0 border-t border-white/10 px-6 py-6 flex flex-col gap-5" style="background:rgba(5,8,20,0.97);backdrop-filter:blur(16px);">
+      <a href="#inicio"    class="nav-link" onclick="closeMobileMenu()">Inicio</a>
+      <a href="#programas" class="nav-link" onclick="closeMobileMenu()">Programas</a>
+      <a href="#horario"   class="nav-link" onclick="closeMobileMenu()">Horario</a>
+      <a href="#contacto"  class="nav-link" onclick="closeMobileMenu()">Contacto</a>
+      <a href="https://www.youtube.com/@oncestream" target="_blank"
+         class="inline-flex items-center gap-2 border border-white/20 text-white text-xs font-semibold tracking-widest uppercase px-4 py-2.5 w-fit cursor-pointer">
+        Suscribirse a YouTube
+      </a>
+    </div>
+  </nav>
+
+
+  <!-- ╔══════════════════════════════╗ -->
+  <!-- ║            HERO              ║ -->
+  <!-- ╚══════════════════════════════╝ -->
+  <section id="inicio" class="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
+
+    <!-- Video background -->
+    <video class="hero-video" autoplay muted loop playsinline>
+      <source src="assets/video/hero.mp4" type="video/mp4">
+    </video>
+
+    <!-- Overlays -->
+    <div class="absolute inset-0" style="background:linear-gradient(to bottom, rgba(5,8,20,0.45) 0%, rgba(5,8,20,0.35) 50%, rgba(5,8,20,0.95) 100%);"></div>
+
+    <!-- Content -->
+    <div class="relative z-10 text-center px-6 max-w-5xl mx-auto">
+      <p class="text-[#C5D535] font-semibold tracking-[0.35em] uppercase text-xs mb-5 reveal">
+        Canal de YouTube · Chile
+      </p>
+      <h1 class="font-display text-white mb-6 leading-none reveal" style="font-size:clamp(3.5rem,12vw,9rem);">
+        ONCE<span style="color:#C5D535;">STREAM</span>
+      </h1>
+      <p class="text-white/60 text-base md:text-lg max-w-lg mx-auto mb-10 leading-relaxed reveal">
+        7 programas. Una sola pantalla.<br>Entretenimiento que no para.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center reveal">
+        <a href="#programas" class="px-9 py-3.5 bg-[#5B7FE8] hover:bg-[#4A6ED7] text-white text-sm font-semibold tracking-widest uppercase transition-colors cursor-pointer">
+          Ver Programas
+        </a>
+        <a href="#contacto" class="px-9 py-3.5 border border-white/30 hover:border-[#C5D535] hover:text-[#C5D535] text-white text-sm font-semibold tracking-widest uppercase transition-colors cursor-pointer">
+          Síguenos
+        </a>
+      </div>
+    </div>
+
+    <!-- Scroll arrow -->
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 bounce">
+      <span class="text-white/30 text-[10px] tracking-[0.25em] uppercase font-semibold">Scroll</span>
+      <svg class="w-4 h-4 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+      </svg>
+    </div>
+  </section>
+
+
+  <!-- ╔══════════════════════════════╗ -->
+  <!-- ║         INTRO BLURB          ║ -->
+  <!-- ╚══════════════════════════════╝ -->
+  <section class="py-24 relative overflow-hidden" style="background:#5B7FE8;">
+    <!-- dot texture -->
+    <div class="absolute inset-0 opacity-[0.08]"
+         style="background-image:radial-gradient(circle,#fff 1px,transparent 1px);background-size:28px 28px;"></div>
+    <!-- lime glow -->
+    <div class="absolute bottom-0 right-0 w-96 h-96 pointer-events-none opacity-25"
+         style="background:radial-gradient(circle,#C5D535 0%,transparent 70%);transform:translate(30%,30%);"></div>
+
+    <div class="max-w-7xl mx-auto px-6 lg:px-16 relative">
+      <div class="grid md:grid-cols-2 gap-12 md:gap-24 items-center">
+
+        <!-- Left -->
+        <div class="reveal">
+          <div class="w-10 h-0.5 bg-[#C5D535] mb-7"></div>
+          <h2 class="font-display text-3xl md:text-4xl lg:text-5xl text-white leading-tight mb-5">
+            ¡El entretenimiento<br>digital está en<br><span style="color:#C5D535;">Oncestream!</span>
+          </h2>
+          <p class="text-white/75 text-sm leading-relaxed max-w-sm">
+            Somos la productora detrás de los programas más frescos y directos de YouTube. Contenido auténtico, sin filtros, para la audiencia que exige más.
+          </p>
+        </div>
+
+        <!-- Divider -->
+        <div class="hidden md:block absolute left-1/2 top-0 bottom-0 w-px -translate-x-1/2" style="background:linear-gradient(to bottom,transparent,rgba(197,213,53,0.4) 30%,rgba(197,213,53,0.4) 70%,transparent);"></div>
+
+        <!-- Right -->
+        <div class="reveal">
+          <p class="text-white/75 text-sm leading-relaxed mb-8">
+            Cada semana publicamos contenido en nuestro canal de YouTube y en todas nuestras redes. No te pierdas ningún estreno — suscríbete para no quedarte fuera.
+          </p>
+          <div class="flex flex-col sm:flex-row gap-4">
+            <a href="#programas" class="inline-flex items-center gap-3 border border-[#C5D535] hover:bg-[#C5D535] hover:text-[#1E1B4B] text-[#C5D535] px-6 py-3 text-xs font-semibold tracking-widest uppercase transition-colors cursor-pointer">
+              Ver Programas
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ╔══════════════════════════════╗ -->
+  <!-- ║          SHOWS GRID          ║ -->
+  <!-- ╚══════════════════════════════╝ -->
+  <section id="programas" class="bg-[#F0F4FF]">
+
+    <!-- Section header -->
+    <div class="max-w-7xl mx-auto px-6 lg:px-16 pt-12 pb-6 reveal">
+      <div class="flex items-center gap-4 mb-1">
+        <div class="w-8 h-0.5 bg-[#5B7FE8]"></div>
+        <span class="text-[#5B7FE8] text-xs font-semibold tracking-[0.25em] uppercase">Programación</span>
+      </div>
+      <h2 class="font-display text-4xl md:text-5xl text-[#1E1B4B]">Nuestros Programas</h2>
+    </div>
+
+    <!-- 4-column full-bleed grid -->
+    <div class="shows-grid grid grid-cols-2 lg:grid-cols-4">
+
+      <!-- 1 · Déjalo Pasar · blue -->
+      <div class="show-card reveal">
+        <div class="show-card-bg" style="background:linear-gradient(145deg,#5B7FE8 0%,#3A5ED3 55%,#2643B8 100%);">
+          <div class="absolute inset-0" style="background:radial-gradient(ellipse at 25% 75%,rgba(197,213,53,0.4) 0%,transparent 55%),radial-gradient(ellipse at 80% 15%,rgba(255,255,255,0.15) 0%,transparent 45%);"></div>
+        </div>
+        <div class="show-card-overlay"></div>
+        <div class="show-card-content">
+          <div class="flex flex-wrap gap-1.5 mb-2">
+            <span class="text-[10px] font-semibold px-2 py-0.5" style="background:rgba(255,255,255,0.18);color:#fff;">Lu · Mi · Vi</span>
+            <span class="text-[10px] font-bold px-2 py-0.5" style="background:#C5D535;color:#050814;">13:00 PM</span>
+          </div>
+          <h3 class="font-display text-xl text-white leading-tight">Déjalo Pasar</h3>
+        </div>
+      </div>
+
+      <!-- 2 · Mañana te Cuento · orange -->
+      <div class="show-card reveal">
+        <div class="show-card-bg" style="background:linear-gradient(145deg,#F97316 0%,#EA580C 55%,#C2410C 100%);">
+          <div class="absolute inset-0" style="background:radial-gradient(ellipse at 70% 25%,rgba(255,220,80,0.5) 0%,transparent 50%),radial-gradient(ellipse at 20% 80%,rgba(255,255,255,0.12) 0%,transparent 45%);"></div>
+        </div>
+        <div class="show-card-overlay"></div>
+        <div class="show-card-content">
+          <div class="flex flex-wrap gap-1.5 mb-2">
+            <span class="text-[10px] font-semibold px-2 py-0.5" style="background:rgba(255,255,255,0.18);color:#fff;">Lu · Mi · Vi</span>
+            <span class="text-[10px] font-bold px-2 py-0.5" style="background:#C5D535;color:#050814;">10:00 AM</span>
+          </div>
+          <h3 class="font-display text-xl text-white leading-tight">Mañana te Cuento!</h3>
+        </div>
+      </div>
+
+      <!-- 3 · Al Borde · pink -->
+      <div class="show-card reveal">
+        <div class="show-card-bg" style="background:linear-gradient(145deg,#FF6B9D 0%,#E91E8C 55%,#AD1457 100%);">
+          <div class="absolute inset-0" style="background:radial-gradient(ellipse at 50% 50%,rgba(255,255,255,0.2) 0%,transparent 60%);"></div>
+        </div>
+        <div class="show-card-overlay"></div>
+        <div class="show-card-content">
+          <div class="flex flex-wrap gap-1.5 mb-2">
+            <span class="text-[10px] font-semibold px-2 py-0.5" style="background:rgba(255,255,255,0.18);color:#fff;">Ma · Ju</span>
+            <span class="text-[10px] font-bold px-2 py-0.5" style="background:#C5D535;color:#050814;">10:00 AM</span>
+          </div>
+          <h3 class="font-display text-xl text-white leading-tight">Al Borde</h3>
+        </div>
+      </div>
+
+      <!-- 4 · Malos Perdedores · green -->
+      <div class="show-card reveal">
+        <div class="show-card-bg" style="background:linear-gradient(145deg,#22C55E 0%,#16A34A 55%,#15803D 100%);">
+          <div class="absolute inset-0" style="background:radial-gradient(ellipse at 40% 60%,rgba(255,255,255,0.2) 0%,transparent 55%);"></div>
+        </div>
+        <div class="show-card-overlay"></div>
+        <div class="show-card-content">
+          <div class="flex flex-wrap gap-1.5 mb-2">
+            <span class="text-[10px] font-semibold px-2 py-0.5" style="background:rgba(255,255,255,0.18);color:#fff;">Martes</span>
+            <span class="text-[10px] font-bold px-2 py-0.5" style="background:#C5D535;color:#050814;">13:00 PM</span>
+          </div>
+          <h3 class="font-display text-xl text-white leading-tight">Malos Perdedores</h3>
+        </div>
+      </div>
+
+      <!-- 5 · Nadie está solo · coral -->
+      <div class="show-card reveal">
+        <div class="show-card-bg" style="background:linear-gradient(145deg,#FF4757 0%,#E53E3E 55%,#C53030 100%);">
+          <div class="absolute inset-0" style="background:radial-gradient(ellipse at 60% 40%,rgba(255,200,200,0.35) 0%,transparent 55%);"></div>
+        </div>
+        <div class="show-card-overlay"></div>
+        <div class="show-card-content">
+          <div class="flex flex-wrap gap-1.5 mb-2">
+            <span class="text-[10px] font-semibold px-2 py-0.5" style="background:rgba(255,255,255,0.18);color:#fff;">Jueves</span>
+            <span class="text-[10px] font-bold px-2 py-0.5" style="background:#C5D535;color:#050814;">13:00 PM</span>
+          </div>
+          <h3 class="font-display text-xl text-white leading-tight">Nadie está solo</h3>
+        </div>
+      </div>
+
+      <!-- 6 · Al Máximo! · purple -->
+      <div class="show-card reveal">
+        <div class="show-card-bg" style="background:linear-gradient(145deg,#A855F7 0%,#7C3AED 55%,#5B21B6 100%);">
+          <div class="absolute inset-0" style="background:radial-gradient(ellipse at 30% 30%,rgba(220,180,255,0.35) 0%,transparent 55%);"></div>
+        </div>
+        <div class="show-card-overlay"></div>
+        <div class="show-card-content">
+          <div class="flex flex-wrap gap-1.5 mb-2">
+            <span class="text-[10px] font-semibold px-2 py-0.5" style="background:rgba(255,255,255,0.18);color:#fff;">Lu a Vi</span>
+            <span class="text-[10px] font-bold px-2 py-0.5" style="background:#C5D535;color:#050814;">09:15 AM</span>
+          </div>
+          <h3 class="font-display text-xl text-white leading-tight">Al Máximo!</h3>
+        </div>
+      </div>
+
+      <!-- 7 · #Sin Editar · dark (wide 2 cols) -->
+      <div class="show-card col-span-2 reveal">
+        <div class="show-card-bg" style="background:linear-gradient(145deg,#1A1445 0%,#0F0D2A 55%,#050814 100%);">
+          <div class="absolute inset-0" style="background:radial-gradient(ellipse at 75% 50%,rgba(91,127,232,0.45) 0%,transparent 50%),radial-gradient(ellipse at 20% 50%,rgba(197,213,53,0.25) 0%,transparent 50%);"></div>
+        </div>
+        <div class="show-card-overlay" style="background:linear-gradient(to top,rgba(5,8,20,0.9) 0%,rgba(5,8,20,0.2) 55%,transparent 100%);"></div>
+        <div class="show-card-content">
+          <div class="flex flex-wrap gap-1.5 mb-2">
+            <span class="text-[10px] font-semibold px-2 py-0.5" style="background:rgba(255,255,255,0.18);color:#fff;">Miércoles</span>
+            <span class="text-[10px] font-bold px-2 py-0.5" style="background:#C5D535;color:#050814;">20:00 PM</span>
+            <span class="text-[10px] font-semibold px-2 py-0.5" style="background:rgba(255,255,255,0.18);color:#fff;">Domingo</span>
+            <span class="text-[10px] font-bold px-2 py-0.5" style="background:#C5D535;color:#050814;">13:00 PM</span>
+          </div>
+          <h3 class="font-display text-2xl text-white leading-tight">#Sin Editar</h3>
+          <p class="text-white/45 text-xs mt-1">El programa donde todo queda tal cual</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ╔══════════════════════════════╗ -->
+  <!-- ║       WEEKLY SCHEDULE        ║ -->
+  <!-- ╚══════════════════════════════╝ -->
+  <section id="horario" class="py-24 bg-white">
+    <div class="max-w-7xl mx-auto px-6 lg:px-16">
+
+      <div class="flex items-center gap-4 mb-1 reveal">
+        <div class="w-8 h-0.5 bg-[#5B7FE8]"></div>
+        <span class="text-[#5B7FE8] text-xs font-semibold tracking-[0.25em] uppercase">Programación semanal</span>
+      </div>
+      <h2 class="font-display text-4xl md:text-5xl text-[#1E1B4B] mb-12 reveal">Horario</h2>
+
+      <div class="overflow-x-auto reveal">
+        <table class="w-full min-w-[680px]">
+          <thead>
+            <tr class="border-b border-white/8">
+              <th class="text-left text-[#5B7FE8] text-[10px] font-semibold tracking-[0.2em] uppercase pb-4 pr-6 w-20">Hora</th>
+              <th class="text-center text-[#6B7280] text-[10px] font-semibold tracking-[0.15em] uppercase pb-4 px-2">Lunes</th>
+              <th class="text-center text-[#6B7280] text-[10px] font-semibold tracking-[0.15em] uppercase pb-4 px-2">Martes</th>
+              <th class="text-center text-[#6B7280] text-[10px] font-semibold tracking-[0.15em] uppercase pb-4 px-2">Miércoles</th>
+              <th class="text-center text-[#6B7280] text-[10px] font-semibold tracking-[0.15em] uppercase pb-4 px-2">Jueves</th>
+              <th class="text-center text-[#6B7280] text-[10px] font-semibold tracking-[0.15em] uppercase pb-4 px-2">Viernes</th>
+              <th class="text-center text-[#6B7280] text-[10px] font-semibold tracking-[0.15em] uppercase pb-4 px-2">Domingo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- 09:15 AM -->
+            <tr class="border-b border-gray-100">
+              <td class="py-3 pr-6 text-[#6B7280] text-xs font-semibold whitespace-nowrap">09:15 AM</td>
+              <td class="py-3 px-2"><div class="sched-cell" style="background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.5);color:#7C3AED;">Al Máximo!</div></td>
+              <td class="py-3 px-2"><div class="sched-cell" style="background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.5);color:#7C3AED;">Al Máximo!</div></td>
+              <td class="py-3 px-2"><div class="sched-cell" style="background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.5);color:#7C3AED;">Al Máximo!</div></td>
+              <td class="py-3 px-2"><div class="sched-cell" style="background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.5);color:#7C3AED;">Al Máximo!</div></td>
+              <td class="py-3 px-2"><div class="sched-cell" style="background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.5);color:#7C3AED;">Al Máximo!</div></td>
+              <td class="py-3 px-2"></td>
+            </tr>
+            <!-- 10:00 AM -->
+            <tr class="border-b border-gray-100">
+              <td class="py-3 pr-6 text-[#6B7280] text-xs font-semibold whitespace-nowrap">10:00 AM</td>
+              <td class="py-3 px-2"><div class="sched-cell" style="background:rgba(249,115,22,0.12);border:1px solid rgba(249,115,22,0.5);color:#EA580C;">Mañana te Cuento!</div></td>
+              <td class="py-3 px-2"><div class="sched-cell" style="background:rgba(233,30,140,0.1);border:1px solid rgba(233,30,140,0.45);color:#BE185D;">Al Borde</div></td>
+              <td class="py-3 px-2"><div class="sched-cell" style="background:rgba(249,115,22,0.12);border:1px solid rgba(249,115,22,0.5);color:#EA580C;">Mañana te Cuento!</div></td>
+              <td class="py-3 px-2"><div class="sched-cell" style="background:rgba(233,30,140,0.1);border:1px solid rgba(233,30,140,0.45);color:#BE185D;">Al Borde</div></td>
+              <td class="py-3 px-2"><div class="sched-cell" style="background:rgba(249,115,22,0.12);border:1px solid rgba(249,115,22,0.5);color:#EA580C;">Mañana te Cuento!</div></td>
+              <td class="py-3 px-2"></td>
+            </tr>
+            <!-- 13:00 PM -->
+            <tr class="border-b border-gray-100">
+              <td class="py-3 pr-6 text-[#6B7280] text-xs font-semibold whitespace-nowrap">13:00 PM</td>
+              <td class="py-3 px-2"><div class="sched-cell" style="background:rgba(91,127,232,0.12);border:1px solid rgba(91,127,232,0.5);color:#3B5BD3;">Déjalo Pasar</div></td>
+              <td class="py-3 px-2"><div class="sched-cell" style="background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.5);color:#15803D;">Malos Perdedores</div></td>
+              <td class="py-3 px-2"><div class="sched-cell" style="background:rgba(91,127,232,0.12);border:1px solid rgba(91,127,232,0.5);color:#3B5BD3;">Déjalo Pasar</div></td>
+              <td class="py-3 px-2"><div class="sched-cell" style="background:rgba(255,71,87,0.1);border:1px solid rgba(255,71,87,0.5);color:#C53030;">Nadie está solo</div></td>
+              <td class="py-3 px-2"><div class="sched-cell" style="background:rgba(91,127,232,0.12);border:1px solid rgba(91,127,232,0.5);color:#3B5BD3;">Déjalo Pasar</div></td>
+              <td class="py-3 px-2"><div class="sched-cell" style="background:#1E1B4B;border:1px solid rgba(91,127,232,0.6);color:#fff;">#Sin Editar</div></td>
+            </tr>
+            <!-- 20:00 PM -->
+            <tr>
+              <td class="py-3 pr-6 text-[#6B7280] text-xs font-semibold whitespace-nowrap">20:00 PM</td>
+              <td class="py-3 px-2"></td>
+              <td class="py-3 px-2"></td>
+              <td class="py-3 px-2"><div class="sched-cell" style="background:#1E1B4B;border:1px solid rgba(91,127,232,0.6);color:#fff;">#Sin Editar</div></td>
+              <td class="py-3 px-2"></td>
+              <td class="py-3 px-2"></td>
+              <td class="py-3 px-2"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ╔══════════════════════════════╗ -->
+  <!-- ║        SOCIAL / CONTACT      ║ -->
+  <!-- ╚══════════════════════════════╝ -->
+  <section id="contacto" class="py-24" style="background:#5B7FE8;">
+    <!-- dot texture -->
+    <div class="absolute inset-0 opacity-[0.06] pointer-events-none"
+         style="background-image:radial-gradient(circle,#fff 1px,transparent 1px);background-size:28px 28px;"></div>
+    <div class="max-w-7xl mx-auto px-6 lg:px-16 relative">
+
+      <div class="text-center mb-16 reveal">
+        <div class="flex items-center justify-center gap-4 mb-1">
+          <div class="w-8 h-0.5 bg-[#C5D535]"></div>
+          <span class="text-[#C5D535] text-xs font-semibold tracking-[0.25em] uppercase">Redes sociales</span>
+          <div class="w-8 h-0.5 bg-[#C5D535]"></div>
+        </div>
+        <h2 class="font-display text-4xl md:text-5xl text-white mt-1">Síguenos</h2>
+        <p class="text-white/70 mt-3 max-w-sm mx-auto text-sm leading-relaxed">
+          Estamos en todas las plataformas. Únete a la comunidad Oncestream.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 reveal">
+
+        <!-- YouTube -->
+        <a href="https://www.youtube.com/@oncestream" target="_blank"
+           class="social-card flex flex-col items-center gap-4 py-10 px-6 bg-white cursor-pointer group">
+          <div class="w-14 h-14 flex items-center justify-center rounded-lg" style="background:rgba(220,38,38,0.08);">
+            <svg class="w-7 h-7 text-red-500" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+            </svg>
+          </div>
+          <div class="text-center">
+            <p class="font-display text-[#1E1B4B] text-lg group-hover:text-[#5B7FE8] transition-colors">YouTube</p>
+            <p class="text-[#6B7280] text-xs mt-0.5">@oncestream</p>
+          </div>
+        </a>
+
+        <!-- TikTok -->
+        <a href="https://www.tiktok.com/@oncestream.cl" target="_blank"
+           class="social-card flex flex-col items-center gap-4 py-10 px-6 bg-white cursor-pointer group">
+          <div class="w-14 h-14 flex items-center justify-center rounded-lg" style="background:rgba(30,27,75,0.06);">
+            <svg class="w-7 h-7 text-[#1E1B4B]" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.79 1.53V6.77a4.85 4.85 0 01-1.02-.08z"/>
+            </svg>
+          </div>
+          <div class="text-center">
+            <p class="font-display text-[#1E1B4B] text-lg group-hover:text-[#5B7FE8] transition-colors">TikTok</p>
+            <p class="text-[#6B7280] text-xs mt-0.5">oncestream.cl</p>
+          </div>
+        </a>
+
+        <!-- Instagram -->
+        <a href="https://www.instagram.com/oncestream" target="_blank"
+           class="social-card flex flex-col items-center gap-4 py-10 px-6 bg-white cursor-pointer group">
+          <div class="w-14 h-14 flex items-center justify-center rounded-lg" style="background:linear-gradient(135deg,rgba(131,58,180,0.1),rgba(229,46,113,0.1),rgba(253,176,69,0.1));">
+            <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <defs>
+                <linearGradient id="ig" x1="0%" y1="100%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#FCAF45"/>
+                  <stop offset="50%" stop-color="#E1306C"/>
+                  <stop offset="100%" stop-color="#833AB4"/>
+                </linearGradient>
+              </defs>
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5" stroke="url(#ig)"/>
+              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" stroke="url(#ig)"/>
+              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" stroke="url(#ig)"/>
+            </svg>
+          </div>
+          <div class="text-center">
+            <p class="font-display text-[#1E1B4B] text-lg group-hover:text-[#5B7FE8] transition-colors">Instagram</p>
+            <p class="text-[#6B7280] text-xs mt-0.5">@oncestream</p>
+          </div>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ╔══════════════════════════════╗ -->
+  <!-- ║            FOOTER            ║ -->
+  <!-- ╚══════════════════════════════╝ -->
+  <footer class="py-8 px-6 lg:px-16 border-t" style="background:#1E1B4B;border-color:rgba(197,213,53,0.15);">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-5">
+
+      <a href="#inicio" class="flex items-center gap-3 cursor-pointer">
+        <div class="w-8 h-8 rounded flex items-center justify-center" style="background:#5B7FE8;">
+          <span class="font-display text-[#C5D535] text-[9px] leading-[1.15] text-center font-bold">ON<br>CE</span>
+        </div>
+        <span class="font-display text-white text-sm tracking-widest">ONCESTREAM</span>
+      </a>
+
+      <p class="text-white/30 text-xs">© 2024 Oncestream. Todos los derechos reservados.</p>
+
+      <nav class="flex gap-6">
+        <a href="#programas" class="text-white/40 hover:text-[#C5D535] text-xs font-semibold tracking-widest uppercase transition-colors cursor-pointer">Programas</a>
+        <a href="#horario"   class="text-white/40 hover:text-[#C5D535] text-xs font-semibold tracking-widest uppercase transition-colors cursor-pointer">Horario</a>
+        <a href="#contacto"  class="text-white/40 hover:text-[#C5D535] text-xs font-semibold tracking-widest uppercase transition-colors cursor-pointer">Contacto</a>
+      </nav>
+    </div>
+  </footer>
+
+
+  <!-- ╔══════════════════════════════╗ -->
+  <!-- ║          JAVASCRIPT          ║ -->
+  <!-- ╚══════════════════════════════╝ -->
+  <script>
+    // ── Navbar scroll solid ──────────────────────
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 60);
+    }, { passive: true });
+
+    // ── Mobile menu ──────────────────────────────
+    const menuBtn = document.getElementById('menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const iconOpen = document.getElementById('icon-open');
+    const iconClose = document.getElementById('icon-close');
+    let menuOpen = false;
+
+    menuBtn.addEventListener('click', () => {
+      menuOpen = !menuOpen;
+      mobileMenu.classList.toggle('hidden', !menuOpen);
+      iconOpen.classList.toggle('hidden', menuOpen);
+      iconClose.classList.toggle('hidden', !menuOpen);
+    });
+
+    function closeMobileMenu() {
+      menuOpen = false;
+      mobileMenu.classList.add('hidden');
+      iconOpen.classList.remove('hidden');
+      iconClose.classList.add('hidden');
+    }
+
+    // ── Active nav on scroll ─────────────────────
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('.nav-link');
+
+    window.addEventListener('scroll', () => {
+      let current = 'inicio';
+      sections.forEach(sec => {
+        if (window.scrollY >= sec.offsetTop - 120) current = sec.id;
+      });
+      navLinks.forEach(link => {
+        const matches = link.getAttribute('href') === '#' + current;
+        link.classList.toggle('active', matches);
+      });
+    }, { passive: true });
+
+    // ── Scroll reveal ────────────────────────────
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => entry.target.classList.add('visible'), i * 60);
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.08 });
+
+    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+    // ── prefers-reduced-motion ───────────────────
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
+      document.querySelectorAll('.bounce').forEach(el => el.style.animation = 'none');
+    }
+  </script>
+
+</body>
+</html>
